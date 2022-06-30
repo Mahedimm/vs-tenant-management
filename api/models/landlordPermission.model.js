@@ -27,5 +27,5 @@ schema.methods.toJSON = function () {
     return obj;
 };
 
-const model = mongoose.model("permission", schema);
+const model = mongoose.model("lalo_permission", schema);
 module.exports = {PermissionModel: model};

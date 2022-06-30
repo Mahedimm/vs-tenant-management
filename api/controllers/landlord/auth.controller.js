@@ -3,14 +3,14 @@ const httpStatus = require("http-status");
 const mongoose = require("mongoose");
 const moment = require("moment");
 
-const apiResponse = require("../utils/apiResponse");
-const catchAsync = require("../utils/catchAsync");
-const validationError = require("../utils/validationError");
+const apiResponse = require("../../utils/apiResponse");
+const catchAsync = require("../../utils/catchAsync");
+const validationError = require("../../utils/validationError");
 
-const {UserModel} = require("../models/user.model");
-const {RoleModel} = require("../models/role.model");
-const {OAuthAccessTokenModel} = require("../models/oAuthAccessToken.model");
-const {OAuthRefreshTokenModel} = require("../models/oAuthRefreshToken.model");
+const {UserModel} = require("../../models/landlordUser.model");
+const {RoleModel} = require("../../models/landlordRole.model");
+const {OAuthAccessTokenModel} = require("../../models/landlordOAuthAccessToken.model");
+const {OAuthRefreshTokenModel} = require("../../models/landlordOAuthRefreshToken.model");
 
 const generateToken = (user, exp, secret) => {
     return jsonwebtoken.sign({

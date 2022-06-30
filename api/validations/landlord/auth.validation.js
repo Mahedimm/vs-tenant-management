@@ -1,5 +1,5 @@
 const Joi = require('@hapi/joi');
-const {validate} = require("../utils/validate");
+const {validate} = require("../../utils/validate");
 
 const login = {
     body: Joi.object({

@@ -11,10 +11,15 @@ const roleSchema = new Schema({
     name: { type: String, required: false, default: null }
 },{ _id : false });
 
-const departmentSchema = new Schema({
-    _id: { type: ObjectId, required: false, ref: 'department', default: null },
+const flatSchema = new Schema({
+    _id: { type: ObjectId, required: false, ref: 'flat' },
     name: { type: String, required: false, default: null }
-},{ _id : false });
+},{ _id: false });
+
+const tenantSchema = new Schema({
+    _id: { type: ObjectId, required: false, ref: 'tenant' },
+    name: { type: String, required: false, default: null }
+},{ _id: false });
 
 const identitySchema = new Schema([{
     type: { type: String, enum: Object.values(identityType), required: false, default: null },
@@ -37,17 +42,29 @@ const personalSchema = new Schema({
     permanentAddress: { type: String, required: false, default: null },
 },{ _id : false });
 
+const emergencySchema = new Schema([{
+    name: { type: String, required: false, default: null },
+    number: { type: String, required: false, default: null },
+    relation: { type: String, required: false, default: null },
+    address: { type: String, required: false, default: null },
+},{ _id: false }]);
+
 const schema = new Schema({
     role: {
         type: roleSchema,
         required: false,
         default: () => ({})
     },
-    department: {
-        type: departmentSchema,
-        required: false,
-        default: () => ({})
-    },
+    tenant: [{
+        type:tenantSchema,
+        ref: "tenant",
+        default: [],
+    }],
+    flat: [{
+        type:flatSchema,
+        ref: "flat",
+        default: [],
+    }],
     email: {
         type: String,
         required: true,
@@ -69,6 +86,11 @@ const schema = new Schema({
     },
     personal: {
         type: personalSchema,
+        required: false,
+        default: () => ({})
+    },
+    emergency: {
+        type: emergencySchema,
         required: false,
         default: () => ({})
     },

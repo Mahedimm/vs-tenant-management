@@ -1,14 +1,14 @@
-const {UserModel, UserGender} = require("../models/user.model");
+const {UserModel, UserGender} = require("../models/landlordUser.model");
 const validationError = require("../utils/validationError");
 
 setTimeout(async () => {
     const userContent = {
-        email: "rashed.rsd4@gmail.com",
-        username: "raashed",
-        password: "P@$$w0rd",
+        email: "mahedi.contact@gmail.com",
+        username: "mahedi",
+        password: "mahedimm",
         superAdmin: true,
         personal: {
-            firstName: "Md. Rashedul",
+            firstName: "Md. Mahedi",
             lastName: "Islam",
             phone: [
                 "123456",
