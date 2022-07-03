@@ -1,65 +1,98 @@
 
 import 'antd/dist/antd.css';
-import { FileOutlined, PieChartOutlined, UserOutlined,DesktopOutlined, MenuFoldOutlined,
-  MenuUnfoldOutlined, } from '@ant-design/icons';
-import { Breadcrumb, Layout, Menu } from 'antd';
-import React, { useState } from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
-const { Header, Content, Footer, Sider } = Layout;
 
-function getItem(label, key, icon, children,link) {
+import { FileOutlined, PieChartOutlined, UserOutlined,AuditOutlined, MenuFoldOutlined,
+  MenuUnfoldOutlined, TeamOutlined, ApartmentOutlined, DashboardOutlined} from '@ant-design/icons';
+import { Breadcrumb, Button, Layout, Menu,Typography } from 'antd';
+import React, { useState } from 'react';
+import {useDispatch, useSelector} from 'react-redux';
+import { logOut, changePassword } from '../redux/authentication/actionCreator';
+import { Link, NavLink, useLocation } from 'react-router-dom';
+import SubMenu from 'antd/lib/menu/SubMenu';
+const { Header, Content, Footer, Sider } = Layout;
+const { Title } = Typography;
+
+function getItem(label, key, icon, children,subMenu) {
   return {
     key,
     icon,
     children,
     label,
-    link
+  subMenu
   };
 }
 
 const items = [
-  getItem('Dashboard', '1', <PieChartOutlined />,'/dashboard'),
-  getItem('Tenant', '2', <DesktopOutlined />,'/tenant'),
-  getItem('User', 'sub1', <UserOutlined />, '/user',[
-    getItem('Tom', '3'),
-    getItem('Bill', '4'),
-    getItem('Alex', '5'),
+  getItem('Dashboard', '1', <DashboardOutlined />,'/dashboard'),
+  getItem('Landlord','sub1', <AuditOutlined />,'/landlord',[
+    getItem("Tenant",'2',<TeamOutlined />,"/landlord/tenant"),
+    getItem("Flat", '3',<ApartmentOutlined />,"/landlord/flat"),
+
+]),
+  getItem('Management', 'sub2', <UserOutlined />, '/user',[
+    getItem("User",'4',<UserOutlined />,"/user"),
+    getItem("Role", '5',<FileOutlined />,"/role"),
   ]),
-  getItem('Rental ', 'sub2', <PieChartOutlined />,'/rental', [getItem('Team 1', '6'), getItem('Team 2', '8')]),
+  getItem('Rental ', 'sub3', <PieChartOutlined />,'/rental', [getItem('Team 1', '6'), getItem('Team 2', '8')]),
   getItem('Files', '9', <FileOutlined />,'/files'),
 ];
 
 
 
 const AppLayout = ({children}) => {
+  const dispatch = useDispatch();
   const {pathname} = useLocation();
   console.log('pathname', pathname);
+  console.log(items);
+
+  const SignOut = e => {
+    e.preventDefault();
+    dispatch(logOut());
+};
 
     const [collapsed, setCollapsed] = useState(false);
   return (
     <Layout className="h-screen"
     >
-      <Sider collapsible collapsed={collapsed} onCollapse={(value) => setCollapsed(value)}>
-        <div className="bg-red-400 h-8 m-4" />
+      <Sider collapsible collapsed={collapsed} onCollapse={(value) => setCollapsed(value)}
+       className="w-32"
+      >
+       <NavLink to="/" className="text-white">
+          <h1 className='text-white bg-red-500 rounded-full p-2  cursor-pointer shadow-md w-10 h-10 m-auto my-4 text-center '> TM </h1>
+        </NavLink>
+
         <Menu theme="dark" defaultSelectedKeys={['1']} mode="inline"  >
           {items.map((item) => (
-            <Menu.Item key={item.key} title={item.label} icon={item.icon}>
+            item.subMenu ? 
+              <SubMenu title={item.label} key={item.key} icon={item.icon}>{
+              item.subMenu.map((submenu)=>(
+              <Menu.Item key={submenu.key} title={submenu.label} icon={submenu.icon} >
+                 <NavLink to={`${submenu.children}`}>{submenu.label}</NavLink>
+             </Menu.Item>
+             ))}
+            </SubMenu>
+           : 
+            <Menu.Item key={item.key} title={item.label} icon={item.icon}> 
               <NavLink to={`${item.children}`}>{item.label}</NavLink>
             </Menu.Item>
-          ))}
+            ))}
+          
+         
+          
         </Menu>
       </Sider>
       <Layout className="site-layout">
         <Header
-          className="site-layout-background"
+          className="site-layout-background flex justify-between  items-center "
           style={{
-            padding: 0,
+            padding: 10,
           }}
         >
          {React.createElement(collapsed ? MenuUnfoldOutlined : MenuFoldOutlined, {
-            className: 'p-4 text-2xl hover:text-red-400',
+            className: ' text-2xl hover:text-red-400',
             onClick: () => setCollapsed(!collapsed),
           })}
+          <Button onClick={SignOut}>logOut</Button>
         </Header>
         <Content
           style={{
@@ -71,6 +104,7 @@ const AppLayout = ({children}) => {
               margin: '16px 0',
             }}
           >
+        
             {/* <Breadcrumb.Item>{pathname==='/' ? "DashBoard" : {pathname}}</Breadcrumb.Item> */}
             {/* <Breadcrumb.Item>Bill</Breadcrumb.Item> */}
           </Breadcrumb>
