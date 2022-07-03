@@ -4,13 +4,13 @@ import React from "react";
 import {useDispatch} from "react-redux";
 import {Constants} from "../../config/constants";
 
-const RoleForm = (
+const FlatForm = (
     {
         form,
         state,
-        role,
-        addRole,
-        updateRole,
+        flat,
+        addFlat,
+        updateFlat,
         isLoading,
         handleOk
     }
@@ -19,12 +19,12 @@ const RoleForm = (
     const layout = { labelCol: { span: 8 }, wrapperCol: { span: 16 } };
     const validateMessages = { required: '${label} is required!' };
 
-    const handleSubmit = async (data) => {
-        if (role._id){
-            Object.assign(data, {_id: role._id});
-            await dispatch(updateRole(data, handleOk))
+    const handleSubmit = async (data) => { console.log(data);
+        if (flat._id){
+            Object.assign(data, {_id: flat._id});
+            await dispatch(updateFlat(data, handleOk))
         } else
-            await dispatch(addRole(data, handleOk));
+            await dispatch(addFlat(data, handleOk));
     };
 
     const footerButtons = [
@@ -44,14 +44,14 @@ const RoleForm = (
         <Col md={12}>
             <Modal
                 type={state.modalType}
-                title="Role Form"
+                title="Flat Form"
                 visible={state.visible}
                 onCancel={() => handleOk()}
                 footer={footerButtons}
             >
                 <Form
                     {...layout}
-                    name="roleForm"
+                    name="flatForm"
                     form={form}
                     id="myForm"
                     validateMessages={validateMessages}
@@ -60,14 +60,14 @@ const RoleForm = (
                     <Form.Item
                         name="name"
                         rules={[{ required: true }]}
-                        initialValue={role.name ? role.name : null}
-                        label="Name"
+                        initialValue={flat.name ? flat.name : null}
+                        label="Flat Name"
                     >
                         <Input placeholder="Name"/>
                     </Form.Item>
                     <Form.Item
                         name="description"
-                        initialValue={role.description ? role.description : null}
+                        initialValue={flat.description ? flat.description : null}
                         rules={[{ required: true }]}
                         label="Description"
                     >
@@ -75,7 +75,7 @@ const RoleForm = (
                     </Form.Item>
                     <Form.Item
                         name="status"
-                        initialValue={role.status ? role.status : ''}
+                        initialValue={flat.status ? flat.status : ''}
                         rules={[{ required: true }]}
                         label="Status"
                     >
@@ -91,4 +91,4 @@ const RoleForm = (
     )
 }
 
-export default RoleForm;
+export default FlatForm;

@@ -11,11 +11,17 @@ const TenantList = ({
     getTenantInfo,
     deleteTenant
 }) => {
+    console.log(tenants.data);
     const columns = [
         {
             title: 'Tenant Name',
             dataIndex: 'username',
             key: 'username',
+        },
+        {
+            title: 'Flat Name',
+            dataIndex: "flatName",
+            key: 'flat',
         },
         {
             title: 'Email',
@@ -35,7 +41,7 @@ const TenantList = ({
         {
             title: <div className="text-right">Action</div>,
             dataIndex: '_id',
-            key: '_id',
+            key:'_id',
             render: (key) => <div className="text-right">
                 {Scope.checkScopes(['landlord_m_tenants_update']) && (
                  

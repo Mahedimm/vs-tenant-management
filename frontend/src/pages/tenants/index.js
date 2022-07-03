@@ -76,6 +76,7 @@ const handleOk = () => {
                 showModal={showModal}
                 tenants={tenants}
                 getTenants={getTenants}
+               
                 getTenantInfo={getTenantInfo}
                 deleteTenant={deleteTenant}
      />

@@ -4,7 +4,7 @@ import 'antd/dist/antd.css';
 import { FileOutlined, PieChartOutlined, UserOutlined,AuditOutlined, MenuFoldOutlined,
   MenuUnfoldOutlined, TeamOutlined, ApartmentOutlined, DashboardOutlined} from '@ant-design/icons';
 import { Breadcrumb, Button, Layout, Menu,Typography } from 'antd';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import { logOut, changePassword } from '../redux/authentication/actionCreator';
 import { Link, NavLink, useLocation } from 'react-router-dom';
@@ -49,8 +49,34 @@ const AppLayout = ({children}) => {
     e.preventDefault();
     dispatch(logOut());
 };
+const [screenSize,setScreenSize] = useState(undefined);
 
-    const [collapsed, setCollapsed] = useState(false);
+useEffect(() => {
+
+  const isWindow = typeof window !== 'undefined';
+  if (isWindow) {
+  const handleResize = () => setScreenSize(window.innerWidth);
+
+  window.addEventListener('resize', handleResize);
+
+  handleResize();
+
+  return () => window.removeEventListener('resize', handleResize);
+  }
+}, []);
+
+useEffect(() => {
+  if (screenSize <= 900) {
+    setCollapsed(true);
+  } else {
+    setCollapsed(false);
+  }
+}, [screenSize]);
+
+    const [collapsed, setCollapsed] = useState(true);
+ 
+
+ 
   return (
     <Layout className="h-screen"
     >

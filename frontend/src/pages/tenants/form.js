@@ -81,7 +81,7 @@ const TenantForm = ({form, state, tenant, addTenant, updateTenant, isLoading, ha
                                 label="Tenant Name"
                             >
                                 <Input placeholder="Tenant Name"/>
-                            </Form.Item>
+                            </Form.Item> 
                             <Form.Item
                                 name="email"
                                 initialValue={tenant?.email ? tenant?.email : null}
@@ -89,6 +89,14 @@ const TenantForm = ({form, state, tenant, addTenant, updateTenant, isLoading, ha
                                 label="Email"
                             >
                                 <Input placeholder="Email"/>
+                            </Form.Item>
+                            <Form.Item
+                                name="flatName"
+                                initialValue={tenant?.flat?.flatName ? tenant?.flat?.flatName : null}
+                                rules={[{required: true}]}
+                                label="Flat Name"
+                            >
+                                <Input placeholder="Flat Name"/>
                             </Form.Item>
                             <Form.Item
                                 name="fathersName"
