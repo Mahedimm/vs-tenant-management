@@ -110,6 +110,44 @@ const getUsers = {
 };
 
 
+const getTeams = {
+    query: Joi.object({
+        page: Joi.string().optional(),
+        perPage: Joi.string().optional(),
+    })
+};
+
+const addTeam = {
+    body: Joi.object({
+        name: Joi.string().required(),
+        description: Joi.string().required(),
+        status: Joi.string().required(),
+    })
+};
+
+const getTeam = {
+    params: Joi.object({
+        _id: Joi.string().required(),
+    })
+};
+
+const updateTeam = {
+    body: Joi.object({
+        _id: Joi.string().required(),
+        name: Joi.string().required(),
+        description: Joi.string().required(),
+        status: Joi.string().required(),
+    })
+};
+
+const deleteTeam = {
+    params: Joi.object({
+        _id: Joi.string().required(),
+    })
+};
+
+
+
 
 module.exports = {
     getRolesValidation: validate(getRoles),
@@ -126,6 +164,12 @@ module.exports = {
     getUserValidation: validate(getUser),
     updateUserValidation: validate(updateUser),
     deleteUserValidation: validate(deleteUser),
+
+    getTeamsValidation: validate(getTeams),
+    addTeamValidation: validate(addTeam),
+    getTeamValidation: validate(getTeam),
+    updateTeamValidation: validate(updateTeam),
+    deleteTeamValidation: validate(deleteTeam),
 
     
 }

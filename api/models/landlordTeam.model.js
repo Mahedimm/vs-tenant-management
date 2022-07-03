@@ -20,12 +20,7 @@ const schema = new Schema({
         type: String,
         enum: Object.values(status),
         required: true,
-    },
-    permissions: [{
-        type: String,
-        ref:"lalo_permission",
-        default: [],
-    }],
+    }
 }, { timestamps: true });
 
 schema.methods.toJSON = function () {
@@ -38,5 +33,5 @@ schema.methods.toJSON = function () {
     return obj;
 };
 
-const model = mongoose.model("role", schema);
-module.exports = {RoleModel: model, RoleStatus: status};
+const model = mongoose.model("la_team", schema);
+module.exports = {TeamModel: model, TeamStatus: status};

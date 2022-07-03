@@ -10,6 +10,7 @@ const {FlatModel, FlatStatus} = require("../../models/flat.model");
 const {TenantModel, TenantStatus} = require("../../models/tenant.model");
 const {PermissionModel} = require("../../models/landlordPermission.model");
 const {UserModel, UserStatus} = require("../../models/landlordUser.model");
+const {TeamModel, TeamStatus} = require("../../models/landlordTeam.model");
 
 const addRole = catchAsync(async (req, res) => {
     const {name, status, description} = req.body;
@@ -200,7 +201,7 @@ const deleteFlat = catchAsync(async (req, res) => {
 const addTenant = catchAsync(async (req, res) => {
     const personal = {firstName, lastName, phone, gender, fathersName, fathersPhone, mothersName, mothersPhone, presentAddress, permanentAddress} = req.body ;
     const emergency = {name, number, relation, address} = req.body ;
-    const {email, username, status,description } = req.body;
+    const {email, username, status} = req.body;
    const newTenant = new TenantModel({personal, email, username, status,emergency});
 
    const err = newTenant.validateSync();
@@ -228,7 +229,7 @@ const getTenants = catchAsync(async (req, res) => {
 const getTenant = catchAsync(async (req, res) => {
     const {_id} = req.params;
     const tenantInfo = await TenantModel.findOne({_id})
-    return apiResponse(res, httpStatus.OK, {data: TenantInfo})
+    return apiResponse(res, httpStatus.OK, {data: tenantInfo})
 })
 
 const updateTenant = catchAsync(async (req, res) => {
@@ -246,11 +247,61 @@ const deleteTenant = catchAsync(async (req, res) => {
     return apiResponse(res, httpStatus.ACCEPTED, {message: "Deleted"})
 })
 
+// Teams
+const addTeam = catchAsync(async (req, res) => {
+    const {name, status, description} = req.body;
+    const newTeam = new TeamModel({name, status, description});
+
+    const err = newTeam.validateSync();
+    if (err instanceof mongoose.Error) {
+        const validation = await validationError.requiredCheck(err.errors)
+        return apiResponse(res, httpStatus.NOT_ACCEPTABLE, {message: "Validation Required"}, validation)
+    }
+
+    const save = await newTeam.save();
+    return apiResponse(res, httpStatus.CREATED, {data: save, message: "Team Created"})
+})
+
+const updateTeam = catchAsync(async (req, res) => {
+    const {name, status, description} = req.body;
+    await TeamModel.updateOne({_id: req.params._id}, {$set: {name, status, description}})
+    return apiResponse(res, httpStatus.ACCEPTED, {message: "Updated"})
+})
+
+const getTeams = catchAsync(async (req, res) => {
+    const teams = await TeamModel
+        .find({status: {$ne: TeamStatus.deleted}})
+        .skip(parseInt(req.query.perPage) * (parseInt(req.query.page) - 1))
+        .limit(parseInt(req.query.perPage))
+        .sort({createdAt: -1});
+
+    const total = await TeamModel.countDocuments({status: {$ne: TeamStatus.deleted}})
+    const response = {page: parseInt(req.query.page), perPage: parseInt(req.query.perPage), total, data: teams}
+    return apiResponse(res, httpStatus.OK, {data: response})
+})
+
+const getTeam = catchAsync(async (req, res) => {
+    const {_id} = req.params;
+    const teamInfo = await TeamModel.findOne({_id})
+    return apiResponse(res, httpStatus.OK, {data: teamInfo})
+})
+
+const deleteTeam = catchAsync(async (req, res) => {
+    const findTeamUser = await UserModel.findOne({"team._id": req.params._id}, {firstName: true, lastName: true})
+    if (findTeamUser)
+        return apiResponse(res, httpStatus.NOT_ACCEPTABLE, {message: `${findTeamUser.firstName} ${findTeamUser.lastName} is assigned to this team, it can't be deleted.`})
+
+    await TeamModel.updateOne({_id: req.params._id}, {status: TeamStatus.deleted})
+    return apiResponse(res, httpStatus.ACCEPTED, {message: "Deleted"})
+})
+
+
 
 module.exports = {
     addRole, getRoles, getRole, deleteRole, updateRole,
     getUsers, addUser, updateUser, getUser, deleteUser,
     getRolesPermissions, updateRolesPermissions,
     getFlat, addFlat, getFlats, updateFlat, deleteFlat,
-    getTenant, addTenant, getTenants, updateTenant, deleteTenant
+    getTenant, addTenant, getTenants, updateTenant, deleteTenant,
+    getTeam, addTeam, getTeams, updateTeam, deleteTeam
 };

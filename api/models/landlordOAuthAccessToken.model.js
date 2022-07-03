@@ -13,7 +13,7 @@ const schema = new Schema({
     },
     scopes: [{
         type: String,
-        ref: "permission",
+        ref: "lalo_permission",
         default: []
     }],
     revoked: {

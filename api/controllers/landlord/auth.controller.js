@@ -1,11 +1,10 @@
 const jsonwebtoken = require("jsonwebtoken");
-const httpStatus = require("http-status");
-const mongoose = require("mongoose");
 const moment = require("moment");
+const httpStatus = require("http-status");
+const bcrypt = require("bcrypt");
 
 const apiResponse = require("../../utils/apiResponse");
 const catchAsync = require("../../utils/catchAsync");
-const validationError = require("../../utils/validationError");
 
 const {UserModel} = require("../../models/landlordUser.model");
 const {RoleModel} = require("../../models/landlordRole.model");
@@ -15,6 +14,7 @@ const {OAuthRefreshTokenModel} = require("../../models/landlordOAuthRefreshToken
 const generateToken = (user, exp, secret) => {
     return jsonwebtoken.sign({
         sub: user,
+        platform: "landlord",
         iat: moment().unix(),
         exp: moment(exp).unix(),
     }, secret);
@@ -55,24 +55,25 @@ const accessTokenDetailAndRefreshTokenDetail = async (user, permissions, clientI
 }
 
 const login = catchAsync(async (req, res) => {
-    const {email, password} = req.body;
+    const {username, password} = req.body;
 
     const user = await UserModel.findOne({
-        $or: [{email: email}, {username: email}]
+        $or: [{email: username}, {username: username}]
     });
 
     if (!user) {
-        return apiResponse(res, httpStatus.UNAUTHORIZED, {
+        return apiResponse(res, httpStatus.NOT_ACCEPTABLE, {
             message: "Invalid email or username. Please register first."
         });
     } else if (!(await user.isPasswordMatch(password))) {
-        return apiResponse(res, httpStatus.UNAUTHORIZED, {
+        return apiResponse(res, httpStatus.NOT_ACCEPTABLE, {
             message: "Password not matched."
         });
     }
 
-    const role = await RoleModel.findOne({_id: user.role._id}, {permissions: true});
-    const {accessTokenDetail, refreshTokenDetail} = await accessTokenDetailAndRefreshTokenDetail(user, role && role.permissions ? role.permissions : [], req.client._id);
+    const roleInfo = await RoleModel.findOne({_id: user.role._id});
+
+    const {accessTokenDetail, refreshTokenDetail} = await accessTokenDetailAndRefreshTokenDetail(user,  roleInfo && roleInfo.permissions ? roleInfo.permissions : [], req.client._id);;
 
     return apiResponse(res, httpStatus.CREATED, {
         data: {
@@ -85,78 +86,10 @@ const login = catchAsync(async (req, res) => {
                 expires: refreshTokenDetail.expires,
             },
             user: user,
-            scopes: role && role.permissions ? role.permissions : [],
+            scopes: roleInfo && roleInfo.permissions ? roleInfo.permissions : [],
         },
         message: "Login Successful"
     });
-});
-
-const renew = catchAsync(async (req, res) => {
-    const {access, refresh} = req.body;
-
-    const accessDetail = await OAuthAccessTokenModel.findOne({ _id: access, revoked: false });
-    const refreshDetail = await OAuthRefreshTokenModel.findOne({ _id: refresh, accessToken: access, revoked: false, expires: {$gte: moment().format()} });
-
-    if (accessDetail && refreshDetail) {
-        const user = await UserModel.findOne({_id: accessDetail.user})
-
-        await OAuthAccessTokenModel.updateOne({_id: accessDetail._id}, { revoked: true });
-        await OAuthRefreshTokenModel.updateOne({_id: refreshDetail._id}, { revoked: true });
-        const role = await RoleModel.findOne({_id: user.role._id}, {permissions: true});
-        const {accessTokenDetail, refreshTokenDetail} = await accessTokenDetailAndRefreshTokenDetail(user, role && role.permissions ? role.permissions : [], req.client._id);
-
-        return apiResponse(res, httpStatus.CREATED, {
-            data: {
-                access: {
-                    token: accessTokenDetail._id,
-                    expires: accessTokenDetail.expires,
-                },
-                refresh: {
-                    token: refreshTokenDetail._id,
-                    expires: refreshTokenDetail.expires,
-                },
-                user: user,
-            },
-            message: "Token Renewed."
-        });
-    }
-
-    return apiResponse(res, httpStatus.UNAUTHORIZED, {
-        message: "Session expired. Please login again."
-    });
-});
-
-const register = catchAsync(async (req, res) => {
-    const {firstName, lastName, gender, phone, email, username, password, superAdmin} = req.body;
-    const newUser = new UserModel({password, username, email, superAdmin, personal: {firstName, lastName, gender, phone: [phone]}});
-    const err = newUser.validateSync();
-    if (err instanceof mongoose.Error) {
-        const validation = await validationError.requiredCheck(err.errors);
-        return apiResponse(res, httpStatus.UNPROCESSABLE_ENTITY, validation, err);
-    }
-
-    const validation = await validationError.uniqueCheck(await UserModel.isUnique(username, email));
-    if (Object.keys(validation).length === 0) {
-        const user = await newUser.save();
-
-        const {accessTokenDetail, refreshTokenDetail} = await accessTokenDetailAndRefreshTokenDetail(user, [], req.client._id);
-        return apiResponse(res, httpStatus.CREATED, {
-            data: {
-                access: {
-                    token: accessTokenDetail._id,
-                    expires: accessTokenDetail.expires,
-                },
-                refresh: {
-                    token: refreshTokenDetail._id,
-                    expires: refreshTokenDetail.expires,
-                },
-                user: user,
-            },
-            message: "Registration complete."
-        });
-    } else {
-        return apiResponse(res, httpStatus.NOT_ACCEPTABLE, {message: "Validation Required"}, validation);
-    }
 });
 
 const logout = catchAsync(async (req, res) => {
@@ -175,9 +108,19 @@ const logout = catchAsync(async (req, res) => {
     });
 });
 
-module.exports = {
-    login,
-    renew,
-    register,
-    logout
-}
+const changePassword = catchAsync(async (req, res) => {
+    const {currentPassword, password, _id} = req.body;
+    const user = await UserModel.findOne({_id})
+    if (user._id) {
+        const passMatch = await bcrypt.compare(currentPassword, user.password);
+        if (passMatch) {
+            const pass = await bcrypt.hash(password, 8)
+            await UserModel.updateOne({_id: _id}, {$set: {password: pass}});
+            return apiResponse(res, httpStatus.ACCEPTED, {message: "Password Updated"});
+        }
+        return apiResponse(res, httpStatus.NOT_ACCEPTABLE, {message: "Current Password Not Matched"});
+    }
+    return apiResponse(res, httpStatus.NOT_ACCEPTABLE, {message: "User not Found"});
+});
+
+module.exports = { login, logout, changePassword }

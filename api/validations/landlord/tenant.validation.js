@@ -6,7 +6,7 @@ const {validate} = require("../../utils/validate");
 
 const addTenant = {
     body: Joi.object({
-        roleId: Joi.string().required(),
+      
         firstName: Joi.string().required(),
         lastName: Joi.string().required(),
         phone: Joi.number().required(),
@@ -33,7 +33,7 @@ const getTenant = {
 const updateTenant = {
     body: Joi.object({
         _id: Joi.string().required(),
-        roleId: Joi.string().required(),
+        
         firstName: Joi.string().required(),
         lastName: Joi.string().required(),
         phone: Joi.number().required(),
@@ -73,5 +73,7 @@ module.exports = {
     getTenantValidation: validate(getTenant),
     updateTenantValidation: validate(updateTenant),
     deleteTenantValidation: validate(deleteTenant),
+
+ 
 
 }

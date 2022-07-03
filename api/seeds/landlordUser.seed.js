@@ -5,7 +5,7 @@ setTimeout(async () => {
     const userContent = {
         email: "mahedi.contact@gmail.com",
         username: "mahedi",
-        password: "mahedimm",
+        password: "123456",
         superAdmin: true,
         personal: {
             firstName: "Md. Mahedi",

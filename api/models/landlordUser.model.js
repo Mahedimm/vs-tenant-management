@@ -57,13 +57,14 @@ const schema = new Schema({
     },
     tenant: [{
         type:tenantSchema,
-        ref: "tenant",
-        default: [],
+        required: false,
+        default: () => ({})
+       
     }],
     flat: [{
         type:flatSchema,
-        ref: "flat",
-        default: [],
+        required: false,
+        default: () => ({})
     }],
     email: {
         type: String,

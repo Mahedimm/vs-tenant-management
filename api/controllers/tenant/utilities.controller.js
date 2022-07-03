@@ -3,8 +3,8 @@ const httpStatus = require("http-status");
 const catchAsync = require("../../utils/catchAsync");
 const apiResponse = require("../../utils/apiResponse");
 
-const {RoleModel, RoleStatus} = require("../../models/beRole.model");
-const {UserModel, UserStatus} = require("../../models/feUser.model");
+const {RoleModel, RoleStatus} = require("../../models/role.model");
+const {UserModel, UserStatus} = require("../../models/user.model");
 
 const getRoles = catchAsync(async (req, res) => {
     const roles = await RoleModel.find({ status: { $eq: RoleStatus.active } });

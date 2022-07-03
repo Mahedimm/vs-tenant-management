@@ -9,14 +9,14 @@ const guestRoute = require("./guest.route");
 
 // landlord 
 const authRoute = require("./landlord/auth.route");
-// const utilitiesRoute = require("./landlord/utilities.route");
+const utilitiesRoute = require("./landlord/utilities.route");
 const lmRoute = require("./landlord/lm.route");
 
 
 router.use("/", guestRoute);
 
 router.use("/landlord/auth", authRoute);
-// router.use("/landlord/utilities", utilitiesRoute);
+router.use("/landlord/utilities", utilitiesRoute);
 router.use("/landlord/landlord-management", lmRoute);
 // router.use("/landlord/tenant-management", tmRoute);
 
