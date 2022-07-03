@@ -200,9 +200,10 @@ const deleteFlat = catchAsync(async (req, res) => {
 // Tenant
 const addTenant = catchAsync(async (req, res) => {
     const personal = {firstName, lastName, phone, gender, fathersName, fathersPhone, mothersName, mothersPhone, presentAddress, permanentAddress} = req.body ;
+    const flat ={flatName} = req.body;
     const emergency = {name, number, relation, address} = req.body ;
     const {email, username, status} = req.body;
-   const newTenant = new TenantModel({personal, email, username, status,emergency});
+   const newTenant = new TenantModel({personal, email, username, status,emergency, flat});
 
    const err = newTenant.validateSync();
    if (err instanceof mongoose.Error) {
@@ -238,7 +239,9 @@ const updateTenant = catchAsync(async (req, res) => {
     const personal = {firstName, lastName, phone, gender, fathersName, fathersPhone, mothersName, mothersPhone, presentAddress, permanentAddress} = req.body;
     const emergency = {name, number, relation, address} = req.body ;
     const {email, username,  status} = req.body;
-    await TenantModel.updateOne({_id: req.params._id}, {$set: { personal, email, username, status,emergency}})
+    const flat = {flatName} = req.body;
+
+    await TenantModel.updateOne({_id: req.params._id}, {$set: { personal, email, username, status,emergency, flat}})
     return apiResponse(res, httpStatus.ACCEPTED, {message: "Updated"})
 })
 

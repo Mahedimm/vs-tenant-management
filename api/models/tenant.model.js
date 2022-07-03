@@ -46,6 +46,10 @@ const emergencySchema = new Schema([{
     address: { type: String, required: false, default: null },
 },{ _id: false }]);
 
+const flatSchema = new Schema([{
+    flatName: { type: String, required: false, default: null },
+},{ _id: false }]);
+
 
 
 
@@ -67,6 +71,11 @@ const schema = new Schema({
     },  
     personal: {
         type: personalSchema,
+        required: false,
+        default: () => ({})
+    },
+    flat: {
+        type: flatSchema,
         required: false,
         default: () => ({})
     },

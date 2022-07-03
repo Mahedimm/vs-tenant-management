@@ -20,6 +20,8 @@ const addTenant = {
         email: Joi.string().email().required(),
         username: Joi.string().required(),
         status: Joi.string().required(),
+        flatName: Joi.string().required(),
+        
     })
 };
 
@@ -47,6 +49,8 @@ const updateTenant = {
         email: Joi.string().email().required(),
         username: Joi.string().required(),
         status: Joi.string().required(),
+        flatName: Joi.string().required(),
+       
     })
 };
 
